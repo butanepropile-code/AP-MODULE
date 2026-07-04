@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP MODULE — Premium Study Module Library</title>
+
+    <style>
+        /* ============================================================
+           CSS CUSTOM PROPERTIES
+           ============================================================ */
+        :root {
+            --bg-deep: #05050d;
+            --bg-surface: rgba(12, 12, 30, 0.7);
+            --glass: rgba(255, 255, 255, 0.025);
+            --glass-hover: rgba(255, 255, 255, 0.05);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(255, 255, 255, 0.12);
+            --neon-blue: #00c6ff;
+            --neon-cyan: #00e5ff;
+            --neon-purple: #a855f7;
+            --neon-violet: #8b5cf6;
+            --glow-blue-soft: rgba(0, 198, 255, 0.3);
+            --glow-blue-strong: rgba(0, 198, 255, 0.6);
+            --glow-purple-soft: rgba(168, 85, 247, 0.3);
+            --glow-purple-strong: rgba(168, 85, 247, 0.55);
+            --text-primary: #e8e8f0;
+            --text-secondary: #b0b0c0;
+            --text-dim: #777790;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+            --transition-smooth: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-display: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* ============================================================
+           CUSTOM SCROLLBAR — Premium thin glowing
+           ============================================================ */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 85, 247, 0.5);
+            box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+        }
+        /* Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+        }
+
+        /* ============================================================
+           CANVAS BACKGROUND
+           ============================================================ */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        /* ============================================================
+           FLOATING ORBS — Ambient depth
+           ============================================================ */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.25;
+            animation: orbDrift 20s ease-in-out infinite;
+        }
+        .ambient-orb.orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 180, 255, 0.5) 0%, transparent 70%);
+            top: -15%;
+            left: -10%;
+            animation-delay: 0s;
+            animation-duration: 22s;
+        }
+        .ambient-orb.orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(160, 80, 255, 0.45) 0%, transparent 70%);
+            bottom: -12%;
+            right: -8%;
+            animation-delay: -8s;
+            animation-duration: 24s;
+        }
+        .ambient-orb.orb-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(0, 200, 255, 0.35) 0%, transparent 70%);
+            top: 50%;
+            left: 55%;
+            animation-delay: -15s;
+            animation-duration: 26s;
+            opacity: 0.18;
+        }
+
+        @keyframes orbDrift {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(60px, -40px) scale(1.15);
+            }
+            50% {
+                transform: translate(-30px, 50px) scale(0.9);
+            }
+            75% {
+                transform: translate(-50px, -30px) scale(1.1);
+            }
+        }
+
+        /* ============================================================
+           MAIN CONTENT WRAPPER
+           ============================================================ */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        /* ============================================================
+           SECTION REVEAL — Scroll-triggered
+           ============================================================ */
+        .reveal-section {
+            opacity: 0;
+            transform: translateY(40px) scale(0.96);
+            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal-section.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* ============================================================
+           SECTION 1 — HERO
+           ============================================================ */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 24px;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            background: var(--glass);
+            border: 1px solid var(--border-subtle);
+            color: var(--neon-cyan);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+            animation: fadeInDown 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 6.5rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            margin-bottom: 10px;
+            background: linear-gradient(180deg, #ffffff 20%, #b0d0ff 50%, #c8b0ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s both;
+            text-shadow: none;
+            position: relative;
+        }
+        .hero-title-glow {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            text-shadow:
+                0 0 40px var(--glow-blue-soft),
+                0 0 80px var(--glow-blue-soft),
+                0 0 120px var(--glow-purple-soft),
+                0 0 200px rgba(168, 85, 247, 0.25);
+            color: transparent;
+            user-select: none;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.2vw, 1.35rem);
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            margin-bottom: 12px;
+            animation: fadeInUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s both;
+        }
+
+        .hero-description {
+            font-size: 1rem;
+            color: var(--text-dim);
+            max-width: 520px;
+            margin: 0 auto 36px;
+            line-height: 1.7;
+            animation: fadeInUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.45s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CTA Button */
+        .cta-button {
+            position: relative;
+            display: inline-block;
+            padding: 16px 44px;
+            border-radius: 60px;
+            background: linear-gradient(135deg, rgba(0, 180, 255, 0.2) 0%, rgba(140, 80, 240, 0.25) 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            text-decoration: none;
+            overflow: hidden;
+            transition: all var(--transition-smooth);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 0 30px rgba(0, 180, 255, 0.15), 0 0 60px rgba(140, 80, 240, 0.1);
+            animation: fadeInUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s both;
+            z-index: 1;
+        }
+        .cta-button:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 50px rgba(0, 200, 255, 0.35), 0 0 90px rgba(140, 80, 240, 0.25), 0 0 140px rgba(0, 180, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        .cta-button:active {
+            transform: scale(0.96);
+            transition: transform 0.15s ease;
+        }
+        .cta-button .btn-content {
+            position: relative;
+            z-index: 2;
+            display: inline-block;
+            transition: transform 0.2s ease;
+            pointer-events: none;
+        }
+        .cta-button::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 62px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple), var(--neon-blue));
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s;
+            filter: blur(16px);
+        }
+        .cta-button:hover::after {
+            opacity: 0.6;
+        }
+        .cta-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.7s ease-out forwards;
+            pointer-events: none;
+            z-index: 3;
+        }
+        @keyframes ripple {
+            to {
+                transform: scale(6);
+                opacity: 0;
+            }
+        }
+
+        /* ============================================================
+           SECTION 2 — MODULE LIBRARY
+           ============================================================ */
+        .modules-section {
+            padding: 80px 24px 100px;
+            max-width: 1150px;
+            margin: 0 auto;
+        }
+        .section-heading {
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .section-subheading {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 1rem;
+            margin-bottom: 50px;
+            letter-spacing: 0.02em;
+        }
+        .section-divider {
+            width: 60px;
+            height: 3px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            margin: 0 auto 50px;
+            box-shadow: 0 0 20px var(--glow-blue-soft);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            perspective: 1200px;
+        }
+
+        /* Premium Glass Card */
+        .glass-card {
+            position: relative;
+            background: var(--glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 40px 28px 34px;
+            text-align: center;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+            transition: all var(--transition-smooth);
+            cursor: default;
+            transform-style: preserve-3d;
+            will-change: transform, box-shadow;
+            overflow: visible;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: calc(var(--radius-lg) + 1px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 50%, rgba(255, 255, 255, 0.04) 100%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+        }
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+        .glass-card:hover {
+            border-color: var(--border-glow);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 40px var(--glow-blue-soft),
+                0 0 80px rgba(140, 80, 240, 0.2),
+                0 1px 0 rgba(255, 255, 255, 0.06) inset;
+            transform: translateY(-6px);
+            background: var(--glass-hover);
+        }
+        .glass-card .card-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all var(--transition-smooth);
+            position: relative;
+            z-index: 1;
+        }
+        .glass-card:hover .card-icon {
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 30px var(--glow-blue-soft), 0 0 60px rgba(140, 80, 240, 0.2);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .glass-card .card-icon svg {
+            width: 38px;
+            height: 38px;
+            transition: transform var(--transition-bounce);
+        }
+        .glass-card:hover .card-icon svg {
+            transform: scale(1.1);
+        }
+        .glass-card .card-title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            margin-bottom: 8px;
+            color: #fff;
+            transition: color var(--transition-smooth);
+        }
+        .glass-card:hover .card-title {
+            color: #e0f0ff;
+        }
+        .glass-card .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .card-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-smooth);
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .card-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 0 25px var(--glow-blue-soft), 0 0 50px rgba(140, 80, 240, 0.2);
+            transform: translateY(-2px);
+        }
+        .card-btn:active {
+            transform: scale(0.94);
+            transition: transform 0.12s ease;
+        }
+        .card-btn .btn-inner {
+            position: relative;
+            z-index: 2;
+            display: inline-block;
+            pointer-events: none;
+            transition: transform 0.2s ease;
+        }
+
+        /* ============================================================
+           SECTION 3 — WHY AP MODULE (Features)
+           ============================================================ */
+        .features-section {
+            padding: 60px 24px 100px;
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 28px;
+        }
+        .feature-card {
+            background: var(--glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 32px 24px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all var(--transition-smooth);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+        .feature-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 30px rgba(0, 180, 255, 0.12);
+            transform: translateY(-4px);
+        }
+        .feature-icon-wrap {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all var(--transition-smooth);
+        }
+        .feature-card:hover .feature-icon-wrap {
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 22px var(--glow-purple-soft);
+        }
+        .feature-icon-wrap svg {
+            width: 26px;
+            height: 26px;
+        }
+        .feature-card h4 {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* ============================================================
+           SECTION 4 — SOCIAL CTA
+           ============================================================ */
+        .social-section {
+            padding: 60px 24px 80px;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .social-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 36px;
+        }
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.03em;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: var(--glass);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .social-btn:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .social-btn.instagram:hover {
+            box-shadow: 0 0 35px rgba(225, 48, 108, 0.4), 0 0 70px rgba(225, 48, 108, 0.15);
+            background: rgba(225, 48, 108, 0.12);
+        }
+        .social-btn.telegram:hover {
+            box-shadow: 0 0 35px rgba(0, 170, 235, 0.4), 0 0 70px rgba(0, 170, 235, 0.15);
+            background: rgba(0, 170, 235, 0.12);
+        }
+        .social-btn.youtube:hover {
+            box-shadow: 0 0 35px rgba(255, 0, 40, 0.4), 0 0 70px rgba(255, 0, 40, 0.15);
+            background: rgba(255, 0, 40, 0.12);
+        }
+        .social-btn svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           SECTION 5 — FOOTER
+           ============================================================ */
+        .footer-section {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+        }
+        .footer-glow-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-purple), var(--neon-blue), transparent);
+            box-shadow: 0 0 12px var(--glow-purple-soft);
+            border-radius: 50%;
+        }
+        .footer-text {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            letter-spacing: 0.03em;
+        }
+
+        /* ============================================================
+           RESPONSIVE — Media Queries
+           ============================================================ */
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 28px 18px 24px;
+            }
+            .cards-grid {
+                gap: 20px;
+                grid-template-columns: 1fr;
+                max-width: 420px;
+                margin: 0 auto;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+                gap: 18px;
+            }
+            .hero-section {
+                padding: 30px 16px;
+                min-height: 90vh;
+            }
+            .social-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 14px;
+            }
+            .social-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            .ambient-orb {
+                opacity: 0.12;
+            }
+        }
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2.4rem;
+            }
+            .cta-button {
+                padding: 14px 32px;
+                font-size: 0.95rem;
+            }
+            .glass-card .card-icon {
+                width: 54px;
+                height: 54px;
+            }
+            .glass-card .card-icon svg {
+                width: 28px;
+                height: 28px;
+            }
+            .section-heading {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    AMBIENT ORBS — Depth & cinematic lighting
+    ============================================================ -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+    <!-- ============================================================
+    CANVAS — Particle & atom background
+    ============================================================ -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ========== SECTION 1 — HERO ========== -->
+        <section class="hero-section reveal-section" id="hero">
+            <div class="hero-badge">📚 Premium Study Library</div>
+            <h1 class="hero-title">AP MODULE</h1>
+            <p class="hero-subtitle">Premium Study Module Library</p>
+            <p class="hero-description">
+                Access high-quality Physics, Chemistry, and Biology modules in one place.
+                Built for students who demand excellence.
+            </p>
+            <a href="#modules" class="cta-button" id="ctaBtn">
+                <span class="btn-content">Explore Modules</span>
+            </a>
+        </section>
+
+        <!-- ========== SECTION 2 — MODULE LIBRARY ========== -->
+        <section class="modules-section reveal-section" id="modules">
+            <h2 class="section-heading">Module Library</h2>
+            <p class="section-subheading">Select your subject to open the complete module</p>
+            <div class="section-divider"></div>
+            <div class="cards-grid">
+                <!-- CARD 1: PHYSICS -->
+                <div class="glass-card" data-tilt>
+                    <div class="card-icon">
+                        <!-- Atom Icon SVG -->
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="24" cy="24" r="6" fill="rgba(0,198,255,0.7)" stroke="rgba(0,220,255,0.9)" stroke-width="1.5"/>
+                            <ellipse cx="24" cy="24" rx="20" ry="7" stroke="rgba(168,85,247,0.6)" stroke-width="1.2" fill="none" transform="rotate(0 24 24)"/>
+                            <ellipse cx="24" cy="24" rx="20" ry="7" stroke="rgba(0,198,255,0.5)" stroke-width="1.2" fill="none" transform="rotate(60 24 24)"/>
+                            <ellipse cx="24" cy="24" rx="20" ry="7" stroke="rgba(168,85,247,0.5)" stroke-width="1.2" fill="none" transform="rotate(-60 24 24)"/>
+                            <circle cx="44" cy="24" r="2.5" fill="rgba(0,220,255,0.9)"/>
+                            <circle cx="14" cy="10" r="2.5" fill="rgba(168,85,247,0.85)"/>
+                            <circle cx="14" cy="38" r="2.5" fill="rgba(0,200,255,0.8)"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">PHYSICS</h3>
+                    <p class="card-desc">Complete Physics module for preparation.</p>
+                    <a href="fizix.pdf" class="card-btn" target="_blank" rel="noopener">
+                        <span class="btn-inner">Open Module</span>
+                    </a>
+                </div>
+
+                <!-- CARD 2: CHEMISTRY -->
+                <div class="glass-card" data-tilt>
+                    <div class="card-icon">
+                        <!-- Molecule Icon SVG -->
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="24" cy="14" r="7" fill="rgba(0,198,255,0.55)" stroke="rgba(0,220,255,0.8)" stroke-width="1.5"/>
+                            <circle cx="12" cy="34" r="6" fill="rgba(168,85,247,0.5)" stroke="rgba(180,100,255,0.75)" stroke-width="1.5"/>
+                            <circle cx="36" cy="34" r="6" fill="rgba(0,198,255,0.5)" stroke="rgba(0,210,255,0.75)" stroke-width="1.5"/>
+                            <line x1="19" y1="19" x2="15" y2="29" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="29" y1="19" x2="33" y2="29" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="17" y1="36" x2="31" y2="36" stroke="rgba(255,255,255,0.4)" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">CHEMISTRY</h3>
+                    <p class="card-desc">Complete Chemistry module for preparation.</p>
+                    <a href="kemextry.pdf" class="card-btn" target="_blank" rel="noopener">
+                        <span class="btn-inner">Open Module</span>
+                    </a>
+                </div>
+
+                <!-- CARD 3: BIOLOGY -->
+                <div class="glass-card" data-tilt>
+                    <div class="card-icon">
+                        <!-- DNA Icon SVG -->
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 6 C14 6 8 14 8 24 C8 34 14 42 14 42"
+                            stroke="rgba(0,198,255,0.7)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                            <path d="M34 6 C34 6 40 14 40 24 C40 34 34 42 34 42"
+                            stroke="rgba(168,85,247,0.7)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                            <line x1="11" y1="10" x2="37" y2="14" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" stroke-linecap="round"/>
+                            <line x1="10" y1="18" x2="38" y2="22" stroke="rgba(255,255,255,0.45)" stroke-width="1.8" stroke-linecap="round"/>
+                            <line x1="10" y1="26" x2="38" y2="30" stroke="rgba(255,255,255,0.45)" stroke-width="1.8" stroke-linecap="round"/>
+                            <line x1="11" y1="34" x2="37" y2="38" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" stroke-linecap="round"/>
+                            <circle cx="24" cy="12" r="2.5" fill="rgba(0,220,255,0.8)"/>
+                            <circle cx="24" cy="20" r="2.5" fill="rgba(168,85,247,0.75)"/>
+                            <circle cx="24" cy="28" r="2.5" fill="rgba(0,210,255,0.75)"/>
+                            <circle cx="24" cy="36" r="2.5" fill="rgba(168,85,247,0.8)"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">BIOLOGY</h3>
+                    <p class="card-desc">Complete Biology module for preparation.</p>
+                    <a href="viology.pdf" class="card-btn" target="_blank" rel="noopener">
+                        <span class="btn-inner">Open Module</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 3 — WHY AP MODULE ========== -->
+        <section class="features-section reveal-section" id="features">
+            <h2 class="section-heading">Why AP Module?</h2>
+            <p class="section-subheading">Designed for the modern student</p>
+            <div class="section-divider"></div>
+            <div class="features-grid">
+                <!-- Feature 1 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="4" y="6" width="24" height="18" rx="3" stroke="rgba(0,220,255,0.8)" stroke-width="2" fill="none"/>
+                            <path d="M12 16 L15 19 L20 13" stroke="rgba(168,85,247,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h4>Easy Access</h4>
+                    <p>One-click access to all modules. No complicated steps.</p>
+                </div>
+                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="16,3 20,12 30,12 22,18 25,28 16,22 7,28 10,18 2,12 12,12"
+                            fill="rgba(255,215,0,0.7)" stroke="rgba(255,215,0,0.9)" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                    <h4>Premium Notes</h4>
+                    <p>High-quality curated content for serious preparation.</p>
+                </div>
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 4 L16 18 M16 18 L10 12 M16 18 L22 12"
+                            stroke="rgba(0,220,255,0.8)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="6" y="22" width="20" height="6" rx="2" stroke="rgba(168,85,247,0.7)" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                    <h4>Fast Learning</h4>
+                    <p>Structured modules optimized for quick understanding.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 4 — SOCIAL CTA ========== -->
+        <section class="social-section reveal-section" id="social">
+            <h2 class="section-heading">Join AP Community</h2>
+            <p class="section-subheading">
+                Follow and join our community for updates, new modules, and learning content.
+            </p>
+            <div class="section-divider"></div>
+            <div class="social-buttons">
+                <!-- Instagram -->
+                <a href="https://www.instagram.com/ahtashamvault?igsh=MWRibXJ1ZjNjcTMyMw=="
+                target="_blank" rel="noopener" class="social-btn instagram">
+                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"/><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
+                Instagram
+            </a>
+            <!-- Telegram -->
+            <a href="https://t.me/pw_pipro8051"
+            target="_blank" rel="noopener" class="social-btn telegram">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 2L1 10l7 3 4-5 3 8 7-14z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            Telegram
+        </a>
+        <!-- YouTube -->
+        <a href="https://www.youtube.com/@Ahtasham-vault"
+        target="_blank" rel="noopener" class="social-btn youtube">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="10,8 16,12 10,16" fill="currentColor"/><rect x="2" y="4" width="20" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        YouTube
+    </a>
+</div>
+</section>
+
+<!-- ========== SECTION 5 — FOOTER ========== -->
+<footer class="footer-section reveal-section">
+    <div class="footer-glow-line"></div>
+    <p class="footer-text">© 2026 AP MODULE — Built for Students</p>
+</footer>
+</div>
+
+<!-- ============================================================
+JAVASCRIPT — Particles, Tilt, Magnetic, Scroll, Ripple
+============================================================ -->
+<script>
+    (function() {
+        // =====================================================
+        // CANVAS PARTICLE SYSTEM + ATOM STRUCTURES
+        // =====================================================
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let atoms = [];
+        const PARTICLE_COUNT = 90;
+        const ATOM_COUNT = 6;
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+            initAtoms();
+        });
+
+        // Free-floating particles
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 2.5 + 0.6,
+                    vx: (Math.random() - 0.5) * 0.35,
+                    vy: (Math.random() - 0.5) * 0.35 - 0.2,
+                    alpha: Math.random() * 0.55 + 0.2,
+                    pulseSpeed: Math.random() * 0.02 + 0.005,
+                    pulseOffset: Math.random() * Math.PI * 2,
+                    hue: Math.random() < 0.5 ? '170,210,255' : '155,100,240',
+                });
+            }
+        }
+
+        // Atom structures (nucleus + orbiting electrons)
+        function initAtoms() {
+            atoms = [];
+            for (let i = 0; i < ATOM_COUNT; i++) {
+                const numOrbits = Math.floor(Math.random() * 2) + 2; // 2-3 orbits
+                const orbits = [];
+                for (let j = 0; j < numOrbits; j++) {
+                    orbits.push({
+                        rx: Math.random() * 35 + 22,
+                        ry: Math.random() * 12 + 6,
+                        rotation: Math.random() * Math.PI,
+                        speed: (Math.random() * 0.6 + 0.3) * (Math.random() < 0.5 ? 1 : -1),
+                        angle: Math.random() * Math.PI * 2,
+                        electronR: Math.random() * 1.5 + 1.2,
+                    });
+                }
+                atoms.push({
+                    cx: Math.random() * width * 0.8 + width * 0.1,
+                    cy: Math.random() * height * 0.7 + height * 0.15,
+                    nucleusR: Math.random() * 2.5 + 2,
+                    orbits: orbits,
+                    alpha: Math.random() * 0.25 + 0.1,
+                    driftVx: (Math.random() - 0.5) * 0.15,
+                    driftVy: (Math.random() - 0.5) * 0.15,
+                });
+            }
+        }
+
+        function drawParticles(time) {
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw particles
+            for (const p of particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+                // Wrap around
+                if (p.x < -10) p.x = width + 10;
+                if (p.x > width + 10) p.x = -10;
+                if (p.y < -10) p.y = height + 10;
+                if (p.y > height + 10) p.y = -10;
+
+                const pulse = Math.sin(time * p.pulseSpeed + p.pulseOffset) * 0.3 + 0.7;
+                const alpha = p.alpha * pulse;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${p.hue},${alpha})`;
+                ctx.fill();
+                // Subtle glow
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${p.hue},${alpha * 0.2})`;
+                ctx.fill();
+            }
+
+            // Draw atoms
+            for (const atom of atoms) {
+                // Drift
+                atom.cx += atom.driftVx;
+                atom.cy += atom.driftVy;
+                if (atom.cx < -60) atom.cx = width + 60;
+                if (atom.cx > width + 60) atom.cx = -60;
+                if (atom.cy < -60) atom.cy = height + 60;
+                if (atom.cy > height + 60) atom.cy = -60;
+
+                // Nucleus glow
+                const nucleusGlow = ctx.createRadialGradient(atom.cx, atom.cy, 0, atom.cx, atom.cy, atom.nucleusR * 6);
+                nucleusGlow.addColorStop(0, `rgba(200,230,255,${atom.alpha * 1.4})`);
+                nucleusGlow.addColorStop(0.3, `rgba(140,180,255,${atom.alpha})`);
+                nucleusGlow.addColorStop(1, 'rgba(100,140,240,0)');
+                ctx.beginPath();
+                ctx.arc(atom.cx, atom.cy, atom.nucleusR * 6, 0, Math.PI * 2);
+                ctx.fillStyle = nucleusGlow;
+                ctx.fill();
+
+                // Nucleus
+                ctx.beginPath();
+                ctx.arc(atom.cx, atom.cy, atom.nucleusR, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(220,240,255,${atom.alpha * 1.6})`;
+                ctx.fill();
+
+                // Orbits
+                for (const orbit of atom.orbits) {
+                    orbit.angle += orbit.speed * 0.016;
+                    // Draw orbital ring
+                    ctx.save();
+                    ctx.translate(atom.cx, atom.cy);
+                    ctx.rotate(orbit.rotation);
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, orbit.rx, orbit.ry, 0, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(180,200,240,${atom.alpha * 0.55})`;
+                    ctx.lineWidth = 0.6;
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // Electron position
+                    const ex = atom.cx + orbit.rx * Math.cos(orbit.angle) * Math.cos(orbit.rotation) - orbit.ry *
+                        Math.sin(orbit.angle) * Math.sin(orbit.rotation);
+                    const ey = atom.cy + orbit.rx * Math.cos(orbit.angle) * Math.sin(orbit.rotation) + orbit.ry *
+                        Math.sin(orbit.angle) * Math.cos(orbit.rotation);
+
+                    // Electron glow
+                    const eGlow = ctx.createRadialGradient(ex, ey, 0, ex, ey, orbit.electronR * 5);
+                    eGlow.addColorStop(0, `rgba(200,240,255,${atom.alpha * 1.2})`);
+                    eGlow.addColorStop(1, 'rgba(100,180,255,0)');
+                    ctx.beginPath();
+                    ctx.arc(ex, ey, orbit.electronR * 5, 0, Math.PI * 2);
+                    ctx.fillStyle = eGlow;
+                    ctx.fill();
+
+                    // Electron
+                    ctx.beginPath();
+                    ctx.arc(ex, ey, orbit.electronR, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(220,245,255,${atom.alpha * 1.5})`;
+                    ctx.fill();
+                }
+            }
+        }
+
+        initParticles();
+        initAtoms();
+
+        // Animation loop
+        let animTime = 0;
+
+        function animate(timestamp) {
+            animTime = timestamp;
+            drawParticles(timestamp);
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+
+        // =====================================================
+        // 3D CARD TILT — Mouse & Touch
+        // =====================================================
+        const tiltCards = document.querySelectorAll('[data-tilt]');
+
+        function handleCardTilt(card, clientX, clientY) {
+            const rect = card.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const deltaX = (clientX - centerX) / (rect.width / 2);
+            const deltaY = (clientY - centerY) / (rect.height / 2);
+            const maxTilt = 12; // degrees
+            const rotateY = deltaX * maxTilt;
+            const rotateX = -deltaY * maxTilt;
+            card.style.transform =
+                `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.03)`;
+        }
+
+        function resetCardTilt(card) {
+            card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
+        }
+
+        tiltCards.forEach(card => {
+            card.addEventListener('mouseenter', function(e) {
+                handleCardTilt(card, e.clientX, e.clientY);
+            });
+            card.addEventListener('mousemove', function(e) {
+                handleCardTilt(card, e.clientX, e.clientY);
+            });
+            card.addEventListener('mouseleave', function() {
+                resetCardTilt(card);
+            });
+            // Touch support
+            card.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 1) {
+                    e.preventDefault();
+                    handleCardTilt(card, e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: false });
+            card.addEventListener('touchend', function() {
+                resetCardTilt(card);
+            });
+        });
+
+        // =====================================================
+        // MAGNETIC BUTTON HOVER
+        // =====================================================
+        function applyMagnetic(button, innerSelector) {
+            const inner = button.querySelector(innerSelector);
+            if (!inner) return;
+            button.addEventListener('mousemove', function(e) {
+                const rect = button.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dx = (e.clientX - cx) / (rect.width / 2);
+                const dy = (e.clientY - cy) / (rect.height / 2);
+                const maxShift = 4;
+                inner.style.transform = `translate(${dx * maxShift}px, ${dy * maxShift}px)`;
+            });
+            button.addEventListener('mouseleave', function() {
+                inner.style.transform = 'translate(0px, 0px)';
+            });
+        }
+
+        // Apply magnetic to CTA button
+        const ctaBtn = document.getElementById('ctaBtn');
+        if (ctaBtn) applyMagnetic(ctaBtn, '.btn-content');
+
+        // Apply magnetic to card buttons
+        document.querySelectorAll('.card-btn').forEach(btn => {
+            applyMagnetic(btn, '.btn-inner');
+        });
+
+        // =====================================================
+        // BUTTON RIPPLE EFFECT
+        // =====================================================
+        function addRipple(button) {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('cta-ripple');
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                button.appendChild(ripple);
+                ripple.addEventListener('animationend', () => {
+                    ripple.remove();
+                });
+            });
+        }
+        if (ctaBtn) addRipple(ctaBtn);
+        document.querySelectorAll('.card-btn').forEach(addRipple);
+        document.querySelectorAll('.social-btn').forEach(addRipple);
+
+        // =====================================================
+        // SCROLL-TRIGGERED SECTION REVEAL (Intersection Observer)
+        // =====================================================
+        const revealSections = document.querySelectorAll('.reveal-section');
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px 0px -60px 0px',
+            threshold: 0.12,
+        };
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    sectionObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        revealSections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // Hero section: reveal immediately with slight delay
+        const heroSection = document.getElementById('hero');
+        if (heroSection) {
+            setTimeout(() => {
+                heroSection.classList.add('visible');
+            }, 100);
+        }
+
+        // =====================================================
+        // SMOOTH SCROLL FOR CTA (fallback for older browsers)
+        // =====================================================
+        if (ctaBtn) {
+            ctaBtn.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (targetId && targetId.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        }
+
+        // =====================================================
+        // RESIZE HANDLER — Re-init atoms on resize
+        // =====================================================
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                initAtoms();
+                initParticles();
+            }, 300);
+        });
+
+        console.log('%c🚀 AP MODULE %c— Premium Study Platform Ready',
+            'color: #00c6ff; font-size: 1.2em; font-weight: bold;',
+            'color: #a855f7;');
+        console.log('%cAll systems initialized. Particles active. Cards responsive.',
+            'color: #999; font-style: italic;');
+    })();
+</script>
+</body>
+</html>
